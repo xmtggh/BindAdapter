@@ -20,11 +20,11 @@ public class AdapterInjector {
     private static final ViewFinder VIEW_FINDER = new ViewFinder();
     private static final Map<String, AdapterInject> ADAPTER_MAP = new HashMap<>();
 
-    public static <T> void created(Activity activity, List<T> data) {
-        inject(activity, activity, ACTIVITY_FINDER, data);
+    public static <T> void created(Activity activity, int dbid, List<T> data) {
+        inject(activity, activity, ACTIVITY_FINDER, data, dbid);
     }
 
-    public static <T> void inject(Object host, Object source, Finder finder, List<T> data) {
+    public static <T> void inject(Object host, Object source, Finder finder, List<T> data, int dbId) {
         String className = host.getClass().getName();
         try {
             AdapterInject injector = ADAPTER_MAP.get(className);
@@ -33,7 +33,7 @@ public class AdapterInjector {
                 injector = (AdapterInject) finderClass.newInstance();
                 ADAPTER_MAP.put(className, injector);
             }
-            injector.inject(host, source, finder, data);
+            injector.inject(host, source, finder, data, dbId);
         } catch (Exception e) {
             throw new RuntimeException("Unable to inject for " + className, e);
         }

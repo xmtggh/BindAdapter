@@ -46,9 +46,10 @@ public class AdapterClass {
         injectMethod.addParameter(TypeName.OBJECT, "source");
         injectMethod.addParameter(TypeUtil.FINDER, "finder");
         injectMethod.addParameter(ParameterizedTypeName.get(TypeUtil.LIST, getClassType()), "data");
+        injectMethod.addParameter(TypeName.INT,"id");
         injectMethod.addStatement("host.$N= ($T)(finder.findView(source,$L))", mBindAdapter.getElementName()
                 , ClassName.get(mBindAdapter.getTypeMirror()), mBindAdapter.getmResId());
-        injectMethod.addStatement("host.$N.setAdapter(new $L(host,data))", mBindAdapter.getElementName(), getName() + "Adapter");
+        injectMethod.addStatement("host.$N.setAdapter(new $L(host,data,id))", mBindAdapter.getElementName(), getName() + "Adapter");
 
         String packName = getPackageName(mTypeElement);
         String clsName = getClassName(mTypeElement, packName);
@@ -72,7 +73,7 @@ public class AdapterClass {
         injectMethod.addParameter(TypeName.INT, "position");
 //        injectMethod.addStatement("holder.getBinding().setVariable($W.item, getItem(position))",TypeUtil.BR);
 //        injectMethod.addStatement("")
-        injectMethod.addStatement("holder.getBinding().setVariable($L.item, getItem(position));", TypeUtil.BR);
+        injectMethod.addStatement("holder.getBinding().setVariable(dataBindingId, getItem(position));");
 //        injectMethod.addCode("holder.getBinding().setVariable(BR.item, getItem(position));");
 
         //添加构造方法
@@ -80,7 +81,8 @@ public class AdapterClass {
         constructor.addModifiers(Modifier.PUBLIC);
         constructor.addParameter(TypeName.get(mTypeElement.asType()), "context");
         constructor.addParameter(ParameterizedTypeName.get(TypeUtil.LIST, getClassType()), "list");
-        constructor.addStatement("super(context,list)");
+        constructor.addParameter(TypeName.INT, "id");
+        constructor.addStatement("super(context,list,id)");
 //        constructor.addCode("super(context,list)");
         //绑定item layout
         MethodSpec.Builder onCreateViewHolder = MethodSpec.methodBuilder("onCreateViewHolder");

@@ -11,5 +11,5 @@ import java.util.List;
  */
 
 public interface AdapterInject<T, D> {
-    void inject(T host, Object source, Finder finder, List<D> data);
+    void inject(T host, Object source, Finder finder, List<D> data,int databindingId);
 }

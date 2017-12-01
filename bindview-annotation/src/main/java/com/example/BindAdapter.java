@@ -12,10 +12,10 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.CLASS)
 @Target(ElementType.FIELD)
 public @interface BindAdapter {
-    int id();
+    int recyclerViewId();
 
-    int layout();
+    int itemId();
 
-    Class<?> clazzName() default String.class;
+    Class<?> type() default String.class;
 
 }

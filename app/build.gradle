@@ -1,5 +1,4 @@
 apply plugin: 'com.android.application'
-
 android {
     compileSdkVersion 26
     defaultConfig {
@@ -10,6 +9,12 @@ android {
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
+
+    dataBinding {
+        enabled = true
+    }
+
+
     buildTypes {
         release {
             minifyEnabled false
@@ -27,4 +32,5 @@ dependencies {
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
     implementation project(':bindview-annotation')
     implementation project(':bindview-api')
+    annotationProcessor project(':bindview-compiler')
 }

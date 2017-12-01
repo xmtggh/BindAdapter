@@ -24,9 +24,11 @@ public abstract class AbRecyclerViewDBAdapter<T> extends RecyclerView.Adapter<Bi
 
     protected OnItemClickListener onItemClickListener;
 
-    public AbRecyclerViewDBAdapter(Context context, List<T> list) {
+    protected int dataBindingId;
+    public AbRecyclerViewDBAdapter(Context context, List<T> list , int id) {
         this.datas = list;
         this.context = context;
+        this.dataBindingId = id;
         inflater = LayoutInflater.from(context);
     }
 

@@ -3,6 +3,8 @@ package com.example.model;
 import com.example.BindAdapter;
 import com.google.auto.common.MoreElements;
 
+import java.io.InputStream;
+
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.Element;
