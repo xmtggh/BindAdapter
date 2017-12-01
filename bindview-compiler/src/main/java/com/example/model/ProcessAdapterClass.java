@@ -7,13 +7,7 @@ import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.annotation.processing.Messager;
-import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
-import javax.lang.model.element.Parameterizable;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.util.Elements;
 
@@ -22,7 +16,7 @@ import javax.lang.model.util.Elements;
  * Created by Administrator on 2017/4/16 0016.
  */
 
-public class AdapterClass {
+public class ProcessAdapterClass {
     private TypeElement mTypeElement;
     private BindAdapterHelp mBindAdapter;
     private Elements elementUtils;
@@ -31,12 +25,17 @@ public class AdapterClass {
         mBindAdapter = adapter;
     }
 
-    public AdapterClass(TypeElement mTypeElement, Elements elementUtils) {
+    public ProcessAdapterClass(TypeElement mTypeElement, Elements elementUtils) {
         this.mTypeElement = mTypeElement;
         this.elementUtils = elementUtils;
     }
 
 
+    /**
+     * 用于生产绑定adapter的模板
+     * 1.生成findviewByID 代码
+     * 2.recyclerview 绑定 adapter
+     */
     public JavaFile createAdapterInject() {
         MethodSpec.Builder injectMethod = MethodSpec.methodBuilder("inject");
         injectMethod.addAnnotation(Override.class);
@@ -44,66 +43,100 @@ public class AdapterClass {
         injectMethod.returns(TypeName.VOID);
         injectMethod.addParameter(TypeName.get(mTypeElement.asType()), "host");
         injectMethod.addParameter(TypeName.OBJECT, "source");
-        injectMethod.addParameter(TypeUtil.FINDER, "finder");
-        injectMethod.addParameter(ParameterizedTypeName.get(TypeUtil.LIST, getClassType()), "data");
-        injectMethod.addParameter(TypeName.INT,"id");
+        injectMethod.addParameter(ClassTypeUtil.FINDER, "finder");
+        injectMethod.addParameter(ParameterizedTypeName.get(ClassTypeUtil.LIST, getClassType()), "data");
+        injectMethod.addParameter(TypeName.INT, "id");
+
         injectMethod.addStatement("host.$N= ($T)(finder.findView(source,$L))", mBindAdapter.getElementName()
                 , ClassName.get(mBindAdapter.getTypeMirror()), mBindAdapter.getmResId());
         injectMethod.addStatement("host.$N.setAdapter(new $L(host,data,id))", mBindAdapter.getElementName(), getName() + "Adapter");
-
         String packName = getPackageName(mTypeElement);
         String clsName = getClassName(mTypeElement, packName);
         ClassName className = ClassName.get(packName, clsName);
 
         TypeSpec buildClass = TypeSpec.classBuilder(mTypeElement.getSimpleName() + "$$AdapterInject")
                 .addModifiers(Modifier.PUBLIC)
-                .addSuperinterface(ParameterizedTypeName.get(TypeUtil.ADAPTERINJECTOR, TypeName.get(mTypeElement.asType()), getClassType()))
+                .addSuperinterface(ParameterizedTypeName.get(ClassTypeUtil.ADAPTERINJECTOR, TypeName.get(mTypeElement.asType()), getClassType()))
                 .addMethod(injectMethod.build())
                 .build();
+
         return JavaFile.builder(packName, buildClass).build();
 
     }
 
+    /**
+     * 用于生产adapter的模板
+     * 1.构造函数的生成
+     * 2.onBindViewHolder 的生成
+     * 3.onCreateViewHolder 绑定view的生成
+     *
+     * @return
+     */
     public JavaFile createAdapter() {
+        /**
+         * onBindViewHolder 方法的构造
+         * <code>
+         *      @Override
+         *      public void onBindViewHolder(BindingViewHolder holder, int position) {
+         *      holder.getBinding().setVariable(dataBindingId, getItem(position));;
+         *      }
+         * </code>
+         */
         MethodSpec.Builder injectMethod = MethodSpec.methodBuilder("onBindViewHolder");
         injectMethod.addAnnotation(Override.class);
         injectMethod.addModifiers(Modifier.PUBLIC);
         injectMethod.returns(TypeName.VOID);
-        injectMethod.addParameter(TypeUtil.ONCREATERHOLDVIEW, "holder");
+        injectMethod.addParameter(ClassTypeUtil.ONCREATERHOLDVIEW, "holder");
         injectMethod.addParameter(TypeName.INT, "position");
-//        injectMethod.addStatement("holder.getBinding().setVariable($W.item, getItem(position))",TypeUtil.BR);
-//        injectMethod.addStatement("")
-        injectMethod.addStatement("holder.getBinding().setVariable(dataBindingId, getItem(position));");
-//        injectMethod.addCode("holder.getBinding().setVariable(BR.item, getItem(position));");
-
-        //添加构造方法
+        injectMethod.addStatement("holder.getBinding().setVariable(dataBindingId, getItem(position))");
+        /**
+         * adapter 的构造方法
+         * <code>
+         *
+         *      public PersionAdapter(Context context, List<T> list, int id) {
+         *         super(context,list,id);
+         *      }
+         * </code>
+         */
         MethodSpec.Builder constructor = MethodSpec.constructorBuilder();
         constructor.addModifiers(Modifier.PUBLIC);
         constructor.addParameter(TypeName.get(mTypeElement.asType()), "context");
-        constructor.addParameter(ParameterizedTypeName.get(TypeUtil.LIST, getClassType()), "list");
+        constructor.addParameter(ParameterizedTypeName.get(ClassTypeUtil.LIST, getClassType()), "list");
         constructor.addParameter(TypeName.INT, "id");
         constructor.addStatement("super(context,list,id)");
-//        constructor.addCode("super(context,list)");
-        //绑定item layout
+        /**
+         * 加载item的资源文件
+         * <code>
+         *
+         *      @Override
+         *      public BindingViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+         *      return new BindingViewHolder(inflate(id,parent));
+         *      }
+         * </code>
+         */
         MethodSpec.Builder onCreateViewHolder = MethodSpec.methodBuilder("onCreateViewHolder");
-        onCreateViewHolder.returns(TypeUtil.ONCREATERHOLDVIEW);
+        onCreateViewHolder.returns(ClassTypeUtil.ONCREATERHOLDVIEW);
         onCreateViewHolder.addAnnotation(Override.class);
         onCreateViewHolder.addModifiers(Modifier.PUBLIC);
-        onCreateViewHolder.addParameter(TypeUtil.VIEW_GROUP, "parent");
+        onCreateViewHolder.addParameter(ClassTypeUtil.VIEW_GROUP, "parent");
         onCreateViewHolder.addParameter(TypeName.INT, "viewType");
         int layoutId = mBindAdapter.getLayout();
-//        onCreateViewHolder.addStatement("return new BindingViewHolder(inflate(" + layoutId + ",parent))");
         onCreateViewHolder.addStatement("return new BindingViewHolder(inflate($L,parent))", layoutId);
 
 
         String packName = getPackageName(mTypeElement);
-        String clsName = getClassName(mTypeElement, packName);
-        ClassName className = ClassName.get(packName, clsName);
-
+        /**
+         * 主类的构造
+         * <code>
+         *
+         *      public class {NAME}Adapter extends AbRecyclerViewDBAdapter<T>
+         *
+         *
+         * </code>
+         */
         TypeSpec buildClass = TypeSpec.classBuilder(getName() + "Adapter")
                 .addModifiers(Modifier.PUBLIC)
-//                .addSuperinterface(ParameterizedTypeName.get(TypeUtil.ADAPTERINJECTOR, TypeName.get(mTypeElement.asType()), getClassType()))
-                .superclass(ParameterizedTypeName.get(TypeUtil.BASE_ADAPTER, getClassType()))
+                .superclass(ParameterizedTypeName.get(ClassTypeUtil.BASE_ADAPTER, getClassType()))
                 .addMethod(constructor.build())
                 .addMethod(injectMethod.build())
                 .addMethod(onCreateViewHolder.build())

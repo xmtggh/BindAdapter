@@ -1,11 +1,9 @@
 package com.bindview_api;
 
 import android.app.Activity;
-import android.content.Context;
 
-import com.bindview_api.finder.ActivityFinder;
+import com.bindview_api.finder.AdapterFinder;
 import com.bindview_api.finder.Finder;
-import com.bindview_api.finder.ViewFinder;
 
 import java.util.HashMap;
 import java.util.List;
@@ -15,13 +13,12 @@ import java.util.Map;
  * Created by ZQZN on 2017/4/17.
  */
 
-public class AdapterInjector {
-    private static final ActivityFinder ACTIVITY_FINDER = new ActivityFinder();
-    private static final ViewFinder VIEW_FINDER = new ViewFinder();
+public class BindingAdapterUtil {
+    private static final AdapterFinder Adapter_FINDER = new AdapterFinder();
     private static final Map<String, AdapterInject> ADAPTER_MAP = new HashMap<>();
 
-    public static <T> void created(Activity activity, int dbid, List<T> data) {
-        inject(activity, activity, ACTIVITY_FINDER, data, dbid);
+    public static <T> void created(Activity activity, int id, List<T> data) {
+        inject(activity, activity, Adapter_FINDER, data, id);
     }
 
     public static <T> void inject(Object host, Object source, Finder finder, List<T> data, int dbId) {

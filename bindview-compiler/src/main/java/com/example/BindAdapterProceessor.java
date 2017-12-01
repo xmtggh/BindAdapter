@@ -1,14 +1,12 @@
 package com.example;
 
-import com.example.model.AdapterClass;
+import com.example.model.ProcessAdapterClass;
 import com.example.model.BindAdapterHelp;
-import com.google.auto.common.MoreElements;
 import com.google.auto.service.AutoService;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -18,15 +16,9 @@ import javax.annotation.processing.Messager;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.Processor;
 import javax.annotation.processing.RoundEnvironment;
-import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.lang.model.SourceVersion;
-import javax.lang.model.element.AnnotationMirror;
-import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.Element;
-import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
-import javax.lang.model.type.TypeKind;
-import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Elements;
 import javax.tools.Diagnostic;
 
@@ -39,7 +31,7 @@ public class BindAdapterProceessor extends AbstractProcessor {
     private Elements elementUtils;
     private Filer mFilder;
     private Messager messager;
-    private Map<String, AdapterClass> annotatedClassMap = new HashMap<>();
+    private Map<String, ProcessAdapterClass> annotatedClassMap = new HashMap<>();
 
 
     @Override
@@ -74,7 +66,7 @@ public class BindAdapterProceessor extends AbstractProcessor {
             error(e.getMessage());
         }
 
-        for (AdapterClass mClass : annotatedClassMap.values()) {
+        for (ProcessAdapterClass mClass : annotatedClassMap.values()) {
             try {
                 mClass.createAdapterInject().writeTo(mFilder);
                 mClass.createAdapter().writeTo(mFilder);
@@ -89,20 +81,19 @@ public class BindAdapterProceessor extends AbstractProcessor {
 
     private void processBindAdapter(RoundEnvironment roundEnvironment) {
         for (Element e : roundEnvironment.getElementsAnnotatedWith(BindAdapter.class)) {
-            BindAdapter adapter = e.getAnnotation(BindAdapter.class);
-            AdapterClass mBindAdapterClass = getAdapterClass(e);
+            ProcessAdapterClass mBindAdapterClass = getAdapterClass(e);
             BindAdapterHelp help = new BindAdapterHelp(e, elementUtils);
             mBindAdapterClass.addAdapter(help);
         }
 
     }
 
-    private AdapterClass getAdapterClass(Element e) {
+    private ProcessAdapterClass getAdapterClass(Element e) {
         TypeElement parents = (TypeElement) e.getEnclosingElement();
         String parentsName = parents.getQualifiedName().toString();
-        AdapterClass current = annotatedClassMap.get(parentsName);
+        ProcessAdapterClass current = annotatedClassMap.get(parentsName);
         if (current == null) {
-            current = new AdapterClass(parents, elementUtils);
+            current = new ProcessAdapterClass(parents, elementUtils);
             annotatedClassMap.put(parentsName, current);
         }
         return current;
