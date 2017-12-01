@@ -4,9 +4,9 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/BindAdapter.iml" filepath="$PROJECT_DIR$/.idea/BindAdapter.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
-      <module fileurl="file://$PROJECT_DIR$/bindview-annotation/bindview-annotation.iml" filepath="$PROJECT_DIR$/bindview-annotation/bindview-annotation.iml" />
-      <module fileurl="file://$PROJECT_DIR$/bindview-api/bindview-api.iml" filepath="$PROJECT_DIR$/bindview-api/bindview-api.iml" />
-      <module fileurl="file://$PROJECT_DIR$/bindview-compiler/bindview-compiler.iml" filepath="$PROJECT_DIR$/bindview-compiler/bindview-compiler.iml" />
+      <module fileurl="file://$PROJECT_DIR$/bindadapter-annotation/bindview-annotation.iml" filepath="$PROJECT_DIR$/bindadapter-annotation/bindview-annotation.iml" />
+      <module fileurl="file://$PROJECT_DIR$/bindadapter-api/bindadapter-api.iml" filepath="$PROJECT_DIR$/bindadapter-api/bindadapter-api.iml" />
+      <module fileurl="file://$PROJECT_DIR$/bindadapter-compiler/bindview-compiler.iml" filepath="$PROJECT_DIR$/bindadapter-compiler/bindview-compiler.iml" />
     </modules>
   </component>
 </project>

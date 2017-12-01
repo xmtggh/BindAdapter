@@ -30,7 +30,7 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.1'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
-    implementation project(':bindview-annotation')
-    implementation project(':bindview-api')
-    annotationProcessor project(':bindview-compiler')
+    implementation project(':bindadapter-annotation')
+    implementation project(':bindadapter-api')
+    annotationProcessor project(':bindadapter-compiler')
 }
