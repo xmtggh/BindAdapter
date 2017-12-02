@@ -21,7 +21,6 @@ import javax.lang.model.util.Elements;
 
 public class BindAdapterHelp {
     private VariableElement classElement;
-    private int mResId;
     private int layout;
     private AnnotationValue clazzValue;
 
@@ -41,9 +40,6 @@ public class BindAdapterHelp {
         return layout;
     }
 
-    public int getmResId() {
-        return mResId;
-    }
 
     public TypeMirror getTypeMirror() {
         return classElement.asType();
@@ -57,7 +53,6 @@ public class BindAdapterHelp {
         classElement = (VariableElement) element;
         //从元素中获取注解
         BindAdapter mBindView = classElement.getAnnotation(BindAdapter.class);
-        mResId = mBindView.recyclerViewId();
         layout = mBindView.itemId();
         AnnotationMirror svcAnnoMirror = MoreElements.getAnnotationMirror(element, BindAdapter.class).get();
 
@@ -68,11 +63,7 @@ public class BindAdapterHelp {
             }
 
         }
-        if (mResId < 0) {
-            throw new IllegalArgumentException(
-                    String.format("设置的id无效 !", BindAdapter.class.getSimpleName(),
-                            classElement.getSimpleName()));
-        }
+
         if (layout < 0) {
             throw new IllegalArgumentException(
                     String.format("设置的id无效 !", BindAdapter.class.getSimpleName(),

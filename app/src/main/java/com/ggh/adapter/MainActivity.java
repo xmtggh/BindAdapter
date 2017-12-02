@@ -13,15 +13,10 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    @BindAdapter(
-            itemId = R.layout.item_layout
-            , recyclerViewId = R.id.test_recy
-            , type = Persion.class)
+    @BindAdapter(itemId = R.layout.item_layout, type = Persion.class)
     RecyclerView view111;
 
-    @BindAdapter(itemId = R.layout.item_layout
-            , recyclerViewId = R.id.recy,
-            type = Persion.class)
+    @BindAdapter(itemId = R.layout.item_layout, type = Persion.class)
     RecyclerView view;
 
 
@@ -32,8 +27,6 @@ public class MainActivity extends AppCompatActivity {
         List<Persion> list = new ArrayList<>();
         Persion persion = new Persion("GGH");
         list.add(persion);
-        BindingAdapterUtil.created(this, BR.item, list);
-        view111.setLayoutManager(new LinearLayoutManager(this));
 
     }
 }

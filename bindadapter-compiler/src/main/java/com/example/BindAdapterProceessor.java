@@ -3,6 +3,7 @@ package com.example;
 import com.example.model.ProcessAdapterClass;
 import com.example.model.BindAdapterHelp;
 import com.google.auto.service.AutoService;
+import com.squareup.javapoet.JavaFile;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -68,8 +69,11 @@ public class BindAdapterProceessor extends AbstractProcessor {
 
         for (ProcessAdapterClass mClass : annotatedClassMap.values()) {
             try {
-                mClass.createAdapterInject().writeTo(mFilder);
-                mClass.createAdapter().writeTo(mFilder);
+//                mClass.createAdapterInject().writeTo(mFilder);
+                for (JavaFile current:mClass.createAdapter()){
+                    current.writeTo(mFilder);
+
+                }
             } catch (IOException e) {
                 error(e.getMessage());
             }
@@ -79,6 +83,10 @@ public class BindAdapterProceessor extends AbstractProcessor {
         return true;
     }
 
+    /**
+     * 获取所有关于@BindAdapter的注解
+     * @param roundEnvironment
+     */
     private void processBindAdapter(RoundEnvironment roundEnvironment) {
         for (Element e : roundEnvironment.getElementsAnnotatedWith(BindAdapter.class)) {
             ProcessAdapterClass mBindAdapterClass = getAdapterClass(e);

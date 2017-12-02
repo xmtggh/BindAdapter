@@ -7,6 +7,9 @@ import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.util.Elements;
@@ -18,16 +21,19 @@ import javax.lang.model.util.Elements;
 
 public class ProcessAdapterClass {
     private TypeElement mTypeElement;
-    private BindAdapterHelp mBindAdapter;
+    private List<BindAdapterHelp> mBindAdapterHelpList;
     private Elements elementUtils;
+    private List<JavaFile> mFiles ;
 
     public void addAdapter(BindAdapterHelp adapter) {
-        mBindAdapter = adapter;
+        mBindAdapterHelpList.add(adapter);
     }
 
     public ProcessAdapterClass(TypeElement mTypeElement, Elements elementUtils) {
         this.mTypeElement = mTypeElement;
         this.elementUtils = elementUtils;
+        mBindAdapterHelpList = new ArrayList<>();
+        mFiles = new ArrayList<>();
     }
 
 
@@ -36,8 +42,8 @@ public class ProcessAdapterClass {
      * 1.生成findviewByID 代码
      * 2.recyclerview 绑定 adapter
      */
-    public JavaFile createAdapterInject() {
-        MethodSpec.Builder injectMethod = MethodSpec.methodBuilder("inject");
+    /*public JavaFile createAdapterInject() {
+               MethodSpec.Builder injectMethod = MethodSpec.methodBuilder("inject");
         injectMethod.addAnnotation(Override.class);
         injectMethod.addModifiers(Modifier.PUBLIC);
         injectMethod.returns(TypeName.VOID);
@@ -47,9 +53,9 @@ public class ProcessAdapterClass {
         injectMethod.addParameter(ParameterizedTypeName.get(ClassTypeUtil.LIST, getClassType()), "data");
         injectMethod.addParameter(TypeName.INT, "id");
 
-        injectMethod.addStatement("host.$N= ($T)(finder.findView(source,$L))", mBindAdapter.getElementName()
-                , ClassName.get(mBindAdapter.getTypeMirror()), mBindAdapter.getmResId());
-        injectMethod.addStatement("host.$N.setAdapter(new $L(host,data,id))", mBindAdapter.getElementName(), getName() + "Adapter");
+        injectMethod.addStatement("host.$N= ($T)(finder.findView(source,$L))", mBindAdapterHelp.getElementName()
+                , ClassName.get(mBindAdapterHelp.getTypeMirror()), mBindAdapterHelp.getmResId());
+        injectMethod.addStatement("host.$N.setAdapter(new $L(host,data,id))", mBindAdapterHelp.getElementName(), getName() + "Adapter");
         String packName = getPackageName(mTypeElement);
         String clsName = getClassName(mTypeElement, packName);
         ClassName className = ClassName.get(packName, clsName);
@@ -62,7 +68,7 @@ public class ProcessAdapterClass {
 
         return JavaFile.builder(packName, buildClass).build();
 
-    }
+    }*/
 
     /**
      * 用于生产adapter的模板
@@ -72,7 +78,14 @@ public class ProcessAdapterClass {
      *
      * @return
      */
-    public JavaFile createAdapter() {
+    public List<JavaFile> createAdapter() {
+        for (BindAdapterHelp currentHelp:mBindAdapterHelpList){
+            mFiles.add(getJavaFile(currentHelp));
+        }
+        return mFiles;
+    }
+
+    private JavaFile getJavaFile(BindAdapterHelp mBindAdapterHelp) {
         /**
          * onBindViewHolder 方法的构造
          * <code>
@@ -101,7 +114,7 @@ public class ProcessAdapterClass {
         MethodSpec.Builder constructor = MethodSpec.constructorBuilder();
         constructor.addModifiers(Modifier.PUBLIC);
         constructor.addParameter(TypeName.get(mTypeElement.asType()), "context");
-        constructor.addParameter(ParameterizedTypeName.get(ClassTypeUtil.LIST, getClassType()), "list");
+        constructor.addParameter(ParameterizedTypeName.get(ClassTypeUtil.LIST, getClassType(mBindAdapterHelp)), "list");
         constructor.addParameter(TypeName.INT, "id");
         constructor.addStatement("super(context,list,id)");
         /**
@@ -120,7 +133,7 @@ public class ProcessAdapterClass {
         onCreateViewHolder.addModifiers(Modifier.PUBLIC);
         onCreateViewHolder.addParameter(ClassTypeUtil.VIEW_GROUP, "parent");
         onCreateViewHolder.addParameter(TypeName.INT, "viewType");
-        int layoutId = mBindAdapter.getLayout();
+        int layoutId = mBindAdapterHelp.getLayout();
         onCreateViewHolder.addStatement("return new BindingViewHolder(inflate($L,parent))", layoutId);
 
 
@@ -134,16 +147,21 @@ public class ProcessAdapterClass {
          *
          * </code>
          */
-        TypeSpec buildClass = TypeSpec.classBuilder(getName() + "Adapter")
+        TypeSpec buildClass = TypeSpec.classBuilder(captureName(mBindAdapterHelp.getElementName() + "Adapter"))
                 .addModifiers(Modifier.PUBLIC)
-                .superclass(ParameterizedTypeName.get(ClassTypeUtil.BASE_ADAPTER, getClassType()))
+                .superclass(ParameterizedTypeName.get(ClassTypeUtil.BASE_ADAPTER, getClassType(mBindAdapterHelp)))
                 .addMethod(constructor.build())
                 .addMethod(injectMethod.build())
                 .addMethod(onCreateViewHolder.build())
                 .build();
         return JavaFile.builder(packName, buildClass).build();
-
     }
+
+
+
+
+
+
 
     private String getPackageName(TypeElement type) {
         return elementUtils.getPackageOf(type).getQualifiedName().toString();
@@ -154,13 +172,24 @@ public class ProcessAdapterClass {
         return type.getQualifiedName().toString().substring(packageLen).replace('.', '$');
     }
 
-    public ClassName getClassType() {
-        return ClassName.get(mBindAdapter.getaClass().substring(0, mBindAdapter.getaClass().lastIndexOf(".")), mBindAdapter.getaClass().substring(mBindAdapter.getaClass().lastIndexOf(".") + 1, mBindAdapter.getaClass().length()));
+    public ClassName getClassType(BindAdapterHelp mBindAdapterHelp) {
+        return ClassName.get(mBindAdapterHelp.getaClass().substring(0, mBindAdapterHelp.getaClass().lastIndexOf(".")), mBindAdapterHelp.getaClass().substring(mBindAdapterHelp.getaClass().lastIndexOf(".") + 1, mBindAdapterHelp.getaClass().length()));
     }
 
-    public String getName() {
-        return mBindAdapter.getaClass().substring(mBindAdapter.getaClass().lastIndexOf(".") + 1, mBindAdapter.getaClass().length());
+    public String getName(BindAdapterHelp mBindAdapterHelp) {
+        return mBindAdapterHelp.getaClass().substring(mBindAdapterHelp.getaClass().lastIndexOf(".") + 1, mBindAdapterHelp.getaClass().length());
     }
 
+
+    /**
+     * 首字母大写
+     * @param name
+     * @return
+     */
+    public static String captureName(String name) {
+        name = name.substring(0, 1).toUpperCase() + name.substring(1);
+        return  name;
+
+    }
 
 }
