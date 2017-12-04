@@ -1,5 +1,6 @@
 package com.ggh.adapter;
 
+import android.databinding.DataBindingUtil;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -7,6 +8,7 @@ import android.support.v7.widget.RecyclerView;
 
 import com.bindview_api.*;
 import com.example.BindAdapter;
+import com.ggh.adapter.databinding.ActivityMainBinding;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,19 +16,23 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity {
 
     @BindAdapter(itemId = R.layout.item_layout, type = Persion.class)
-    RecyclerView view111;
+    RecyclerView nameList;
 
     @BindAdapter(itemId = R.layout.item_layout, type = Persion.class)
-    RecyclerView view;
+    RecyclerView testList;
+
+    ActivityMainBinding mainBinding;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        mainBinding = DataBindingUtil.setContentView(MainActivity.this,R.layout.activity_main);
         List<Persion> list = new ArrayList<>();
         Persion persion = new Persion("GGH");
         list.add(persion);
-
+        NameListAdapter mNameListAdapter = new NameListAdapter(MainActivity.this,list,BR.item);
+        mainBinding.recy.setLayoutManager(new LinearLayoutManager(MainActivity.this));
+        mainBinding.recy.setAdapter(mNameListAdapter);
     }
 }
