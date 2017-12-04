@@ -20,6 +20,10 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
+        preview {
+            //关键代码，release， debug为library中已有buildType
+            matchingFallbacks = ['release', 'debug']
+        }
     }
 }
 
@@ -30,8 +34,9 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.1'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
-    //    compile 'com.github.xmtggh:BindAdapter:1.0.0'
-    implementation project(':bindadapter-api')
+    compile 'com.github.xmtggh:BindAdapter:1.0.0'
+//    implementation project(':bindadapter-api')
+    compile project(':bindadapter-annotation')
     annotationProcessor project(':bindadapter-compiler')
 
 }

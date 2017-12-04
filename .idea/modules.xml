@@ -7,8 +7,6 @@
       <module fileurl="file://$PROJECT_DIR$/bindadapter-annotation/bindadapter-annotation.iml" filepath="$PROJECT_DIR$/bindadapter-annotation/bindadapter-annotation.iml" />
       <module fileurl="file://$PROJECT_DIR$/bindadapter-api/bindadapter-api.iml" filepath="$PROJECT_DIR$/bindadapter-api/bindadapter-api.iml" />
       <module fileurl="file://$PROJECT_DIR$/bindadapter-compiler/bindadapter-compiler.iml" filepath="$PROJECT_DIR$/bindadapter-compiler/bindadapter-compiler.iml" />
-      <module fileurl="file://F:\code\BindAdapter\bindadapter-annotation\bindview-annotation.iml" filepath="F:\code\BindAdapter\bindadapter-annotation\bindview-annotation.iml" />
-      <module fileurl="file://F:\code\BindAdapter\bindadapter-compiler\bindview-compiler.iml" filepath="F:\code\BindAdapter\bindadapter-compiler\bindview-compiler.iml" />
     </modules>
   </component>
 </project>
